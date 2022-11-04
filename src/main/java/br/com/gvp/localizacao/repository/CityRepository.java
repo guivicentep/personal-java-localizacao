@@ -2,21 +2,30 @@ package br.com.gvp.localizacao.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import br.com.gvp.localizacao.entity.City;
 
-public interface CityRepository extends JpaRepository<City, Long> {
+public interface CityRepository extends JpaRepository<City, Long>, JpaSpecificationExecutor<City> {
 	
 	
 	/* Busca pelo nome correto */
 	List<City> findByName(String name);
 	
 	/* Utilizando a query para conseguir pegar o valor sem case sensitive */
-	/* Busca pelo nome like */
+	/* Busca pelo nome like ordenado */
 	@Query("select c from City c where lower(c.name) like lower(:name)")
-	List<City> findByNameLike(String name);
+	List<City> findByNameLike(String name, Sort sort);
+	
+	/* Utilizando a query para conseguir pegar o valor sem case sensitive */
+	/* Busca pelo nome like paginado*/
+	@Query("select c from City c where lower(c.name) like lower(:name)")
+	Page<City> findByNameLike(String name, Pageable pageable);
 	
 	/* Busca pelo nome que começa por */
 	List<City> findByNameStartingWith(String name);
