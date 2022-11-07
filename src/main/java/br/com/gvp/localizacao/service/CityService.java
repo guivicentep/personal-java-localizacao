@@ -1,7 +1,6 @@
 package br.com.gvp.localizacao.service;
 
-import static br.com.gvp.localizacao.repository.specifications.CitySpecification.inhabitantsGreaterThan;
-import static br.com.gvp.localizacao.repository.specifications.CitySpecification.nameEqual;
+import static br.com.gvp.localizacao.repository.specifications.CitySpecification.*;
 
 import java.util.List;
 
@@ -11,7 +10,9 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import br.com.gvp.localizacao.entity.City;
 import br.com.gvp.localizacao.repository.CityRepository;
@@ -35,6 +36,12 @@ public class CityService {
 		repository.findAll().forEach(System.out::println);
 	}
 
+	public void listCityByNameSQL() {
+		repository.findByNameSQLNative("São Paulo")
+			.stream().map(cityProjection -> new City(cityProjection.getId(), cityProjection.getName(), null))
+			.forEach(System.out::println);
+	}
+	
 	public void listCityByName() {
 		Pageable pageable = PageRequest.of(1, 2);
 		repository.findByNameLike("%%%%", pageable).forEach(System.out::println);
@@ -61,8 +68,26 @@ public class CityService {
 	
 	public void listCitiesSpecsByNameSpecs() {
 		repository
-			.findAll(nameEqual("Brasília").and(inhabitantsGreaterThan(1000)))
+			.findAll(nameEqual("Brasília").and(idEqual(1L)))
 			.forEach(System.out::println);
+	}
+	
+	public void listCitySpecsDinamicFilter(City filter) {
+		Specification<City> specs = Specification.where((root, query, cb) -> cb.conjunction());
+		
+		if(filter.getId() != null) {
+			specs = specs.and(idEqual(filter.getId()));
+		}
+		
+		if(StringUtils.hasText(filter.getName())) {
+			specs = specs.and(nameLike(filter.getName()));
+		}
+		
+		if(filter.getInhabitants() != null) {
+			specs = specs.and(inhabitantsGreaterThan(filter.getInhabitants()));
+		}
+		
+		repository.findAll(specs).forEach(System.out::println);
 	}
 
 }

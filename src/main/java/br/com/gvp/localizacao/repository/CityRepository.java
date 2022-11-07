@@ -8,11 +8,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import br.com.gvp.localizacao.entity.City;
+import br.com.gvp.localizacao.repository.projections.CityProjection;
 
 public interface CityRepository extends JpaRepository<City, Long>, JpaSpecificationExecutor<City> {
 	
+	@Query(nativeQuery = true, value = "select c.city_id as id, c.name from tb_city as c where c.name =:name ")
+	List<CityProjection> findByNameSQLNative(@Param("name") String name);
 	
 	/* Busca pelo nome correto */
 	List<City> findByName(String name);

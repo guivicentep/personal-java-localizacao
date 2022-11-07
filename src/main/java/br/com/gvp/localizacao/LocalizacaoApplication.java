@@ -15,13 +15,11 @@ public class LocalizacaoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		service.listCitiesSpecsByNameSpecs();
+		service.listCityByNameSQL();
 	}
 	
 	public static void main(String[] args) {
 		SpringApplication.run(LocalizacaoApplication.class, args);
 	}
-
-
 
 }
